@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance / Exam Eligibility Checker</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f3f6fb; margin: 0; padding: 20px; color: #243047; }
+    .container { max-width: 850px; margin: auto; background: white; padding: 24px; border-radius: 10px; }
+    label { display: block; margin: 12px 0 5px; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 4px; }
+    button { background: #173b70; color: white; border: 0; cursor: pointer; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccd4df; padding: 9px; text-align: left; }
+    .note { background: #fff4d6; padding: 12px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Attendance / Exam Eligibility Checker</h1>
+  <p class="note"><strong>Important:</strong> The case-study brief does not specify official eligibility cutoffs. The values below are sample demonstration settings only. Confirm the actual rules with your faculty before using this for real decisions.</p>
+  <form id="studentForm">
+    <label>Student name <input id="name" required></label>
+    <label>Roll number <input id="roll" required></label>
+    <label>Attendance percentage (0–100) <input id="attendance" type="number" min="0" max="100" required></label>
+    <label>Academic performance percentage (0–100) <input id="score" type="number" min="0" max="100" required></label>
+    <label>Examination
+      <select id="exam"><option>Minor-1</option><option>Minor-2</option><option>Endterm</option></select>
+    </label>
+    <button type="submit">Check Eligibility</button>
+  </form>
+  <p id="message" role="status"></p>
+  <table>
+    <thead><tr><th>Name</th><th>Roll No.</th><th>Exam</th><th>Attendance</th><th>Performance</th><th>Result</th></tr></thead>
+    <tbody id="results"></tbody>
+  </table>
+</div>
+<script>
+  // DEMONSTRATION VALUES ONLY – replace with faculty-approved rules.
+  const ATTENDANCE_CUTOFF = 75;
+  const PERFORMANCE_CUTOFF = 40;
+  const studentRecords = [];
+ 
+  function checkEligibility(student) {
+    return student.attendance >= ATTENDANCE_CUTOFF &&
+           student.score >= PERFORMANCE_CUTOFF;
+  }
+ 
+  function displayRecords() {
+    const body = document.getElementById("results");
+    body.innerHTML = "";
+    studentRecords.forEach(function(student) {
+      const row = document.createElement("tr");
+      [student.name, student.roll, student.exam, student.attendance + "%",
+       student.score + "%", student.eligible ? "Eligible" : "Not Eligible"]
+        .forEach(function(value) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+      body.appendChild(row);
+    });
+  }
+ 
+  document.getElementById("studentForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const attendance = Number(document.getElementById("attendance").value);
+    const score = Number(document.getElementById("score").value);
+    if (attendance < 0 || attendance > 100 || score < 0 || score > 100) {
+      document.getElementById("message").textContent = "Enter percentages between 0 and 100.";
+      return;
+    }
+    const student = {
+      name: document.getElementById("name").value.trim(),
+      roll: document.getElementById("roll").value.trim(),
+      attendance: attendance,
+      score: score,
+      exam: document.getElementById("exam").value
+    };
+    student.eligible = checkEligibility(student);
+    studentRecords.push(student);
+    displayRecords();
+    document.getElementById("message").textContent =
+      student.name + " is " + (student.eligible ? "Eligible" : "Not Eligible") +
+      " (based on the sample cutoffs).";
+    this.reset();
+  });
+</script>
+</body>
+</html>
